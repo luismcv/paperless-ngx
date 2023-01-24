@@ -2,6 +2,7 @@ import os
 import re
 import tempfile
 from datetime import date
+from datetime import datetime
 from datetime import timedelta
 from fnmatch import fnmatch
 from typing import Dict
@@ -138,6 +139,18 @@ class MailAccountHandler(LoggingMixin):
 
         elif rule.assign_title_from == MailRule.TitleSource.FROM_FILENAME:
             return os.path.splitext(os.path.basename(att.filename))[0]
+
+        else:
+            raise NotImplementedError(
+                "Unknown title selector.",
+            )  # pragma: nocover
+
+    def get_date(self, message, att, rule):
+        if rule.assign_date_from == MailRule.DateSource.FROM_EMAIL_DATE:
+            return message.date
+
+        elif rule.assign_date_from == MailRule.DateSource.FROM_ATTACHMENT_PARSING:
+            return None
 
         else:
             raise NotImplementedError(
@@ -433,6 +446,8 @@ class MailAccountHandler(LoggingMixin):
 
             title = self.get_title(message, att, rule)
 
+            date = self.get_date(message, att, rule)
+
             # don't trust the content type of the attachment. Could be
             # generic application/octet-stream.
             mime_type = magic.from_buffer(att.payload, mime=True)
@@ -454,12 +469,25 @@ class MailAccountHandler(LoggingMixin):
                     f"{message.subject} from {message.from_}",
                 )
 
+                self.log(
+                    "info",
+                    f"Email Date {date}: ",
+                )
+
+                created = None if date is None else datetime.isoformat(date)
+
+                self.log(
+                    "info",
+                    f"Created {created}: ",
+                )
+
                 consume_file.delay(
                     path=temp_filename,
                     override_filename=pathvalidate.sanitize_filename(
                         att.filename,
                     ),
                     override_title=title,
+                    override_created=created,
                     override_correspondent_id=correspondent.id
                     if correspondent
                     else None,

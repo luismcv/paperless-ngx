@@ -80,6 +80,7 @@ class MailRuleSerializer(serializers.ModelSerializer):
             "action",
             "action_parameter",
             "assign_title_from",
+            "assign_date_from",
             "assign_tags",
             "assign_correspondent_from",
             "assign_correspondent",

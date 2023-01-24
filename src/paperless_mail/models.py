@@ -79,6 +79,10 @@ class MailRule(models.Model):
         FROM_SUBJECT = 1, _("Use subject as title")
         FROM_FILENAME = 2, _("Use attachment filename as title")
 
+    class DateSource(models.IntegerChoices):
+        FROM_EMAIL_DATE = 1, _("Use the email's date")
+        FROM_ATTACHMENT_PARSING = 2, _("Use attachment's parsed dates")
+
     class CorrespondentSource(models.IntegerChoices):
         FROM_NOTHING = 1, _("Do not assign a correspondent")
         FROM_EMAIL = 2, _("Use mail address")
@@ -182,6 +186,12 @@ class MailRule(models.Model):
         _("assign title from"),
         choices=TitleSource.choices,
         default=TitleSource.FROM_SUBJECT,
+    )
+
+    assign_date_from = models.PositiveIntegerField(
+        _("assign date from"),
+        choices=DateSource.choices,
+        default=DateSource.FROM_ATTACHMENT_PARSING,
     )
 
     assign_tags = models.ManyToManyField(

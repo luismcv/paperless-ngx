@@ -38,6 +38,7 @@ class MailRuleAdmin(admin.ModelAdmin):
         "attachment_type": admin.VERTICAL,
         "action": admin.VERTICAL,
         "assign_title_from": admin.VERTICAL,
+        "assign_date_from": admin.VERTICAL,
         "assign_correspondent_from": admin.VERTICAL,
     }
 
@@ -83,6 +84,7 @@ class MailRuleAdmin(admin.ModelAdmin):
                 ),
                 "fields": (
                     "assign_title_from",
+                    "assign_date_from",
                     "assign_tags",
                     "assign_document_type",
                     "assign_correspondent_from",
