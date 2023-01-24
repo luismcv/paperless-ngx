@@ -141,6 +141,13 @@ class MailRule(models.Model):
         ),
     )
 
+    filter_label = models.CharField(
+        _("filter label"),
+        max_length=256,
+        null=True,
+        blank=True,
+    )
+
     maximum_age = models.PositiveIntegerField(
         _("maximum age"),
         default=30,

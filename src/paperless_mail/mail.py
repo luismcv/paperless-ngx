@@ -301,7 +301,14 @@ class MailAccountHandler(LoggingMixin):
             if not supports_gmail_labels:
                 criterias_imap = AND(**criterias)
             else:
-                criterias_imap = AND(NOT(gmail_label=gmail_label), **criterias)
+                if rule.filter_label is None:
+                    criterias_imap = AND(NOT(gmail_label=gmail_label), **criterias)
+                else:
+                    criterias_imap = AND(
+                        NOT(gmail_label=gmail_label),
+                        gmail_label=rule.filter_label,
+                        **criterias,
+                    )
         else:
             criterias_imap = AND(**criterias)
 
