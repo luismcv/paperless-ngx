@@ -156,31 +156,16 @@ def scan_file_for_separating_barcodes(filepath: str) -> Tuple[Optional[str], Lis
         if mime_type == "image/tiff":
             pdf_filepath = convert_from_tiff_to_pdf(filepath)
 
-        # Always try pikepdf first, it's usually fine, faster and
-        # uses less memory
         try:
-            _pikepdf_barcode_scan(pdf_filepath)
-        # Password protected files can't be checked
-        except PasswordError as e:
+            # Clear the list in case some processing worked
+            separator_page_numbers = []
+            _pdf2image_barcode_scan(pdf_filepath)
+        # This file is really borked, allow the consumption to continue
+        # but it may fail further on
+        except Exception as e:  # pragma: no cover
             logger.warning(
-                f"File is likely password protected, not checking for barcodes: {e}",
+                f"Exception during barcode scanning: {e}",
             )
-        # Handle pikepdf related image decoding issues with a fallback to page
-        # by page conversion to images in a temporary directory
-        except Exception as e:
-            logger.warning(
-                f"Falling back to pdf2image because: {e}",
-            )
-            try:
-                # Clear the list in case some processing worked
-                separator_page_numbers = []
-                _pdf2image_barcode_scan(pdf_filepath)
-            # This file is really borked, allow the consumption to continue
-            # but it may fail further on
-            except Exception as e:  # pragma: no cover
-                logger.warning(
-                    f"Exception during barcode scanning: {e}",
-                )
 
     else:
         logger.warning(
